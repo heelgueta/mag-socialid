@@ -2,6 +2,7 @@
 options(scipen=999) #disables scientific notation
 options(max.print=1000000) #enable long outputs
 df5p00 <- read.csv("ide5p.csv")
+df5p00$pid <- rownames(df5p00)
 
 ##cfa model testing
 #1 factor
@@ -34,6 +35,18 @@ lavaan::fitMeasures(fitbf, c("chisq.scaled","df","pvalue.scaled","cfi.scaled","t
 lavaan::standardizedSolution(fitbf)
 
 lavaan::anova(fit1f,fit3f,fitbf)
+
+
+dftemp <- as.data.frame(cbind(lavaan::inspect(fit1f, "case.idx"),lavaan::lavPredict(fit1f)))
+colnames(dftemp) <- c("pid","idm")
+
+merge(df5p00, dftemp[, c("pid", "idm")], by="pid", all.x=TRUE)
+df5p01 <- merge(df5p00, dftemp[, c("pid", "idm")], by="pid", all=TRUE)
+
+boxplot(df5p01$idm~df5p01$sex)
+boxplot(df5p01$idm~df5p01$age)
+plot(df5p01$idm~df5p01$age)
+plot(jitter(df5p01$age),jitter(df5p01$idm))
 
 hist(lavaan::lavPredict(fit1f))
 
